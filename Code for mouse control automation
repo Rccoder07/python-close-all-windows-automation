@@ -1,0 +1,41 @@
+import pyautogui
+import time
+import threading
+import psutil
+import os
+
+pyautogui.FAILSAFE = False
+
+current_pid = os.getpid()
+
+def kill_thonny():
+    time.sleep(20)
+    killed = False
+    for proc in psutil.process_iter(['pid', 'name']):
+        try:
+            if proc.info['pid'] == current_pid:
+                continue  # apne aap ko skip kar
+            name = proc.info['name'].lower()
+            if 'thonny' in name:
+                proc.kill()
+                killed = True
+                print(f"Killed: {proc.info['name']} (PID {proc.info['pid']})")
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+    if not killed:
+        print("No Thonny process found by name. Trying window-based close...")
+
+threading.Thread(target=kill_thonny, daemon=True).start()
+
+print("Starting in 10 seconds...")
+time.sleep(10)
+
+pyautogui.hotkey('alt', 'space')
+time.sleep(0.5)
+pyautogui.press('n')
+time.sleep(1)
+
+for i in range(15):
+    pyautogui.moveTo(1900, 15, duration=0.8)
+    pyautogui.click()
+    time.sleep(1)
